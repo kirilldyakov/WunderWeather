@@ -11,19 +11,24 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
-import ru.strongit.wunderweather.modelGeoCode.GoogleMapsApi;
-//import ru.strongit.myrecycledepg.DAO.HelperFactory;
+//import ru.strongit.wunderweather.modelGeoCode.GoogleMapsApi;
 
 
 /**
  * Created by user on 07.06.17.
  */
 
-public class WWApp extends Application {
-    private static GoogleMapsApi wwApi;
-    private Retrofit retrofit;
+public class WunderWeatherApp extends Application {
 
-    public static class MyClientBuilder {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        init_stetho();
+
+    }
+
+    public static class OkHttpClientBuilder {
         protected static OkHttpClient configureClient() {
             OkHttpClient client = null;
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -36,25 +41,6 @@ public class WWApp extends Application {
         public static OkHttpClient createClient() {
             return configureClient();
         }
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-       // HelperFactory.setHelper(getApplicationContext());
-        init_stetho();
-
-
-        retrofit = new Retrofit.Builder()
-                .baseUrl(GoogleMapsApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(MyClientBuilder.configureClient())
-                .build();
-
-        //http://autocomplete.wunderground.com/aq?c=RU&query=
-
-        wwApi = retrofit.create(GoogleMapsApi.class);
     }
 
     private void init_stetho() {
@@ -80,15 +66,5 @@ public class WWApp extends Application {
         OkHttpClient okClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
                 .build();
-    }
-
-    public static GoogleMapsApi getApi() {
-        return wwApi;
-    }
-
-    @Override
-    public void onTerminate() {
-        //HelperFactory.releaseHelper();
-        super.onTerminate();
     }
 }

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WunderWeather</string>
+    <string name="otherCity">Другой город</string>
+    <string name="thisCity">Этот город</string>
 </resources>

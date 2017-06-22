@@ -14,6 +14,8 @@ import ru.strongit.wunderweather.modelCityResult.CityResult;
  * Интерфейс Api для общения с интернет сервером
  */
 public interface GoogleMapsApi {
+    public final String GOOGLE_MAPS_KEY = "AIzaSyCJvKcHEGHoFPiIT7YkK1o2KeIq7yLxfjE";
+
     String BASE_URL = "https://maps.googleapis.com";
 
 

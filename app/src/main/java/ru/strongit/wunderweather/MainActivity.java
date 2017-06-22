@@ -1,6 +1,7 @@
 package ru.strongit.wunderweather;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,15 +33,10 @@ import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String GOOGLE_MAPS_KEY = "AIzaSyCJvKcHEGHoFPiIT7YkK1o2KeIq7yLxfjE";
 
     private FusedLocationProviderClient mFusedLocationClient;
-
-    private WunderGroundApi wunderGroudRTFT;
-    private AutocompleteApi autocompleteRTFT;
-    private GoogleMapsApi googleMapsRTFT;
-
-    private EditText mCityName;
+    private Button mBtnThisCity;
+    private Button mBtnOtherCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,69 +44,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-
-        initRetrofitServices();
-
-        mCityName = (EditText) findViewById(R.id.edCityName);
-        mCityName.addTextChangedListener(new TextWatcher() {
+        mBtnThisCity = (Button) findViewById(R.id.btnThisCity);
+        mBtnThisCity.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.equals("")) return;
-                autocompleteRTFT.getPosibleCities("RU", s.toString()).enqueue(new Callback<CityResult>() {
-                    @Override
-                    public void onResponse(Call<CityResult> call, Response<CityResult> response) {
-                        CityResult mCityResult = response.body();
-                        Log.d("TAG", ">----------");
-                        if (mCityResult != null) {
-                            Log.d("TAG", "Города:");
-                            for (Results res : mCityResult.getRESULTS()) {
-                                Log.d("TAG", res.getName() + " " + res.getLat() + ":" + res.getLon());
-                            }
-                        }
-                        Log.d("TAG", "<------------");
-                    }
-
-                    @Override
-                    public void onFailure(Call<CityResult> call, Throwable t) {
-                        Log.d("TAG", "onFailure: Error");
-                    }
-                });
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), WeatherActivity.class);
+                //i.putExtra()
+                startActivity(i);
             }
         });
-    }
 
-    private void initRetrofitServices() {
-        Retrofit retrofitGM = new Retrofit.Builder()
-                .baseUrl(GoogleMapsApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(WWApp.MyClientBuilder.configureClient())
-                .build();
-        googleMapsRTFT = retrofitGM.create(GoogleMapsApi.class);
+        mBtnOtherCity = (Button) findViewById(R.id.btnOtherCity);
+        mBtnOtherCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), WeatherActivity.class);
+                //i.putExtra()
+                startActivity(i);
+            }
+        });
 
-        Retrofit retrofitWU = new Retrofit.Builder()
-                .baseUrl(WunderGroundApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(WWApp.MyClientBuilder.configureClient())
-                .build();
-        wunderGroudRTFT = retrofitWU.create(WunderGroundApi.class);
-
-        Retrofit retrofitAC = new Retrofit.Builder()
-                .baseUrl(AutocompleteApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(WWApp.MyClientBuilder.configureClient())
-                .build();
-        autocompleteRTFT = retrofitAC.create(AutocompleteApi.class);
     }
 
 
@@ -139,14 +94,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-
     }
 
     private void getGeoCode(String latlon) {
         String language = "ru";
 
-        googleMapsRTFT.getGeoCode(latlon, language, GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
+        RetrofitHelper.getGoogleMapsRTFT().getGeoCode(latlon, language, GoogleMapsApi.GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
             @Override
             public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
                 GeoCode mGeoCode = response.body();
@@ -160,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("TAG", "onFailure: Error");
             }
         });
-
     }
 
     private void getForcast(double lat, double lon) {
@@ -173,8 +125,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getForcast(String lat, String lon) {
-
-        wunderGroudRTFT.getForcast(lat, lon).enqueue(new Callback<Weather>() {
+        RetrofitHelper.getWunderGroudRTFT().getForcast(lat, lon).enqueue(new Callback<Weather>() {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
                 Weather mWeather = response.body();
@@ -188,4 +139,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }
