@@ -1,25 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ru.strongit.wunderweather.MainActivity"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Введите английское название города"/>
-    <AutoCompleteTextView
-        android:id="@+id/autoCompleteTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:imeOptions="actionSearch"
-        android:textColor="@android:color/holo_blue_dark"
-        />
+    android:paddingRight="8dp"
+    tools:context="ru.strongit.wunderweather.MainActivity">
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/city_search_string_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enterCityName" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@android:color/holo_blue_dark" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/current_weather"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_above="@+id/ll_week_forcast"
+        android:layout_below="@id/city_search_string_group">
+
+        <ImageView
+            android:id="@+id/imgCurWeatherMainLogo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="25dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="35dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvTempC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:textColor="@android:color/holo_blue_light"
+                android:textSize="36sp" />
+
+            <TextView
+                android:id="@+id/tvPreasure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="32sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_week_forcast"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rec_week_forcast"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -12,36 +12,37 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.strongit.wunderweather.modelCityResult.Results;
+import ru.strongit.wunderweather.modelWeather10.Forecastday;
+
 
 /**
  * Created by user on 22.06.17.
  */
 
-public class CityResultsAdapter extends ArrayAdapter<Results> {
+public class ForcastdayAdapter extends ArrayAdapter<Forecastday> {
     private final Context mContext;
-    private final List<Results> mResults;
+    private final List<Forecastday> mForecastdayList;
 //    private final List<Department> mDepartments_All;
 //    private final List<Department> mDepartments_Suggestion;
     private final int mLayoutResourceId;
     private int viewResourceId;
 
-    public CityResultsAdapter(Context context, int resource, List<Results> cityResults) {
-        super(context, resource, cityResults);
+    public ForcastdayAdapter(Context context, int resource, List<Forecastday> forecastdaysList) {
+        super(context, resource, forecastdaysList);
         this.mContext = context;
         this.mLayoutResourceId = resource;
-        this.mResults = new ArrayList<>(cityResults);
+        this.mForecastdayList = new ArrayList<>(forecastdaysList);
         this.viewResourceId = resource;
         //this.mDepartments_All = new ArrayList<>(cityResults);
         //this.mDepartments_Suggestion = new ArrayList<>();
     }
 
     public int getCount() {
-        return mResults.size();
+        return mForecastdayList.size();
     }
 
-    public Results getItem(int position) {
-        return mResults.get(position);
+    public Forecastday getItem(int position) {
+        return mForecastdayList.get(position);
     }
 
     public long getItemId(int position) {
@@ -58,12 +59,14 @@ public class CityResultsAdapter extends ArrayAdapter<Results> {
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(viewResourceId, null);
         }
-        Results results = mResults.get(position);
-        if (results != null) {
-            TextView customerNameLabel = (TextView) v.findViewById(R.id.cityName);
-            if (customerNameLabel != null) {
-                customerNameLabel.setText(String.valueOf(results.getName()));
-            }
+        Forecastday forecastday = mForecastdayList.get(position);
+        if (forecastday != null) {
+
+            TextView tvLowTemp = (TextView) v.findViewById(R.id.tvLow);
+                tvLowTemp.setText(String.valueOf(forecastday.getLow().getCelsius()));
+            TextView tvHighTemp = (TextView) v.findViewById(R.id.tvHigh);
+            tvHighTemp.setText(String.valueOf(forecastday.getHigh().getCelsius()));
+
         }
         return v;
     }

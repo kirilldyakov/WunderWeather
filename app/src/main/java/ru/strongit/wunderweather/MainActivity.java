@@ -7,12 +7,9 @@ import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -23,17 +20,12 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.GsonConverterFactory;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import ru.strongit.wunderweather.modelCityResult.AutocompleteApi;
-import ru.strongit.wunderweather.modelCityResult.CityResult;
-import ru.strongit.wunderweather.modelCityResult.Results;
 import ru.strongit.wunderweather.modelGeoCode.GeoCode;
 import ru.strongit.wunderweather.modelGeoCode.GoogleMapsApi;
 import ru.strongit.wunderweather.modelGeoCode.Result;
 import ru.strongit.wunderweather.modelWeather.Weather;
-import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
+import ru.strongit.wunderweather.modelWeather10.WeatherForcast10;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLat;
     private TextView tvLon;
     private TextView tvCity;
+
+    private String mLatitude;
+    private String mLongitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), WeatherActivity.class);
-                //i.putExtra()
+                if(!mLatitude.isEmpty()) i.putExtra(WeatherActivity.EXTRA_LATITUDE, mLatitude);
+                if(!mLongitude.isEmpty()) i.putExtra(WeatherActivity.EXTRA_LONGITUDE, mLongitude);
                 startActivity(i);
             }
         });
@@ -85,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+
         super.onStart();
             if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -99,17 +96,19 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
+                            mLatitude = String.valueOf(location.getLatitude()).replace(',','.');
+                            mLongitude = String.valueOf(location.getLongitude()).replace(',','.');
 
                             tvLat.setText(location.convert(location.getLatitude(), location.FORMAT_SECONDS));
                             tvLon.setText(location.convert(location.getLongitude(), location.FORMAT_SECONDS));
-                            String latlon = String.valueOf(location.getLatitude()).replace(',','.')+","+
-                                    String.valueOf(location.getLongitude()).replace(',','.');
+                            String latlon = mLatitude+","+mLongitude;
                             RetrofitHelper.getGoogleMapsRTFT().getGeoCode(latlon, "RU", GoogleMapsApi.GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
                                 @Override
                                 public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
@@ -125,54 +124,54 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-                            getForcast(location.getLatitude(), location.getLongitude());
+                            //getForcast(location.getLatitude(), location.getLongitude());
                         }
                     }
                 });
     }
 
-    private void getGeoCode(String latlon) {
-        String language = "ru";
-
-        RetrofitHelper.getGoogleMapsRTFT().getGeoCode(latlon, language, GoogleMapsApi.GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
-            @Override
-            public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
-                GeoCode mGeoCode = response.body();
-                if (mGeoCode != null)
-                    Log.d("TAG", "onResponse: ");
-            }
-
-            @Override
-            public void onFailure(Call<GeoCode> call, Throwable t) {
-                t.printStackTrace();
-                Log.d("TAG", "onFailure: Error");
-            }
-        });
-    }
-
-    private void getForcast(double lat, double lon) {
-
-        String sLat = String.format("%1$,.4f", lat).replace(',', '.');
-
-        String sLon = String.format("%1$,.4f", lon).replace(',', '.');
-
-        getForcast(sLat, sLon);
-    }
-
-    private void getForcast(String lat, String lon) {
-        RetrofitHelper.getWunderGroudRTFT().getForcast(lat, lon).enqueue(new Callback<Weather>() {
-            @Override
-            public void onResponse(Call<Weather> call, Response<Weather> response) {
-                Weather mWeather = response.body();
-                if (mWeather != null)
-                    Log.d("TAG", "onResponse: ");
-            }
-
-            @Override
-            public void onFailure(Call<Weather> call, Throwable t) {
-                Log.d("TAG", "onFailure: Error");
-            }
-        });
-    }
+//    private void getGeoCode(String latlon) {
+//        String language = "ru";
+//
+//        RetrofitHelper.getGoogleMapsRTFT().getGeoCode(latlon, language, GoogleMapsApi.GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
+//            @Override
+//            public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
+//                GeoCode mGeoCode = response.body();
+//                if (mGeoCode != null)
+//                    Log.d("TAG", "onResponse: ");
+//            }
+//
+//            @Override
+//            public void onFailure(Call<GeoCode> call, Throwable t) {
+//                t.printStackTrace();
+//                Log.d("TAG", "onFailure: Error");
+//            }
+//        });
+//    }
+//
+//    private void getForcast(double lat, double lon) {
+//
+//        String sLat = String.format("%1$,.4f", lat).replace(',', '.');
+//
+//        String sLon = String.format("%1$,.4f", lon).replace(',', '.');
+//
+//        getForcast(sLat, sLon);
+//    }
+//
+//    private void getForcast(String lat, String lon) {
+//        RetrofitHelper.getWunderGroud10RTFT().getForcast(lat, lon).enqueue(new Callback<WeatherForcast10>() {
+//            @Override
+//            public void onResponse(Call<WeatherForcast10> call, Response<WeatherForcast10> response) {
+//                Weather mWeather = response.body();
+//                if (mWeather != null)
+//                    Log.d("TAG", "onResponse: ");
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Weather> call, Throwable t) {
+//                Log.d("TAG", "onFailure: Error");
+//            }
+//        });
+//    }
 
 }

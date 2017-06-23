@@ -4,7 +4,8 @@ import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
 import ru.strongit.wunderweather.modelCityResult.AutocompleteApi;
 import ru.strongit.wunderweather.modelGeoCode.GoogleMapsApi;
-import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
+//import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
+import ru.strongit.wunderweather.modelWeather10.WunderGround10Api;
 
 /**
  * Created by user on 22.06.17.
@@ -12,7 +13,7 @@ import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
 
 public class RetrofitHelper {
     private static AutocompleteApi autocompleteRTFT;
-    private static WunderGroundApi wunderGroudRTFT;
+    private static WunderGround10Api wunderGroud10RTFT;
     private static GoogleMapsApi googleMapsRTFT;
 
 
@@ -29,17 +30,17 @@ public class RetrofitHelper {
         return autocompleteRTFT;
     }
 
-    public static WunderGroundApi getWunderGroudRTFT() {
-        if (wunderGroudRTFT == null) {
+    public static WunderGround10Api getWunderGroud10RTFT() {
+        if (wunderGroud10RTFT == null) {
 
             Retrofit retrofitWU = new Retrofit.Builder()
-                    .baseUrl(WunderGroundApi.BASE_URL)
+                    .baseUrl(WunderGround10Api.BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(WunderWeatherApp.OkHttpClientBuilder.configureClient())
                     .build();
-            wunderGroudRTFT = retrofitWU.create(WunderGroundApi.class);
+            wunderGroud10RTFT = retrofitWU.create(WunderGround10Api.class);
         }
-        return wunderGroudRTFT;
+        return wunderGroud10RTFT;
     }
 
     public static GoogleMapsApi getGoogleMapsRTFT() {
