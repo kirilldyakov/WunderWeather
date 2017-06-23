@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ru.strongit.wunderweather.MainActivity"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingRight="8dp"
+    tools:context="ru.strongit.wunderweather.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,15 +16,76 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnThisCity"
-            android:text="@string/thisCity"
-            style="@style/stlCityButtons" />
+            style="@style/stlCityButtons"
+            android:text="@string/thisCity" />
+
         <Button
             android:id="@+id/btnOtherCity"
-            android:text="@string/otherCity"
-            style="@style/stlCityButtons" />
+            style="@style/stlCityButtons"
+            android:text="@string/otherCity" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/labelLat"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvLat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text=" "
+                android:textSize="16sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/labelLon"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvLon"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text=" "
+                android:textSize="16sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/labelCity"
+                android:textSize="14sp"
+                />
+            <TextView
+                android:id="@+id/tvCity"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text=" "
+                android:textSize="16sp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

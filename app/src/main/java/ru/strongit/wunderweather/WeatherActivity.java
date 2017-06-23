@@ -21,12 +21,11 @@ import ru.strongit.wunderweather.modelCityResult.Results;
 
 public class WeatherActivity extends AppCompatActivity {
 
-    AutoCompleteTextView mAutoCompleteTextView;
-    List<String> mCities = new ArrayList<>();
-
+    private AutoCompleteTextView mAutoCompleteTextView;
+    private List<String> mCities = new ArrayList<>();
     private ArrayAdapter<String> mAdapter;
 
-    boolean selectedText = false;
+    boolean isSelectedFromDropDownList = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,22 +35,26 @@ public class WeatherActivity extends AppCompatActivity {
         mAutoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
         mAutoCompleteTextView.setThreshold(1);
 
-        bindAdapterToCats();
+        bindAdapterToCities();
 
         mAutoCompleteTextView.setAdapter(mAdapter);
-        //mAutoCompleteTextView.setThreshold(1);
+        mAutoCompleteTextView.setThreshold(1);
 
 
-        boolean selectedText = false;
+        isSelectedFromDropDownList = false;
         mAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
 
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 String r = (String)arg0.getItemAtPosition(arg2);
                 Log.d("TAG", "onItemClick: "+r);
+
+                isSelectedFromDropDownList = true;
+
                 mAutoCompleteTextView.post(new Runnable() {
                     public void run() {
                         mAutoCompleteTextView.dismissDropDown();
+                        mAutoCompleteTextView.setAdapter(null);
                     }
                 });
             }
@@ -73,40 +76,39 @@ public class WeatherActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
+                    if (!isSelectedFromDropDownList) {
+                        RetrofitHelper.getAutocompleteRTFT().getPosibleCities("RU", s.toString()).enqueue(new Callback<CityResult>() {
+                            @Override
+                            public void onResponse(Call<CityResult> call, Response<CityResult> response) {
 
-                    RetrofitHelper.getAutocompleteRTFT().getPosibleCities("RU", s.toString()).enqueue(new Callback<CityResult>() {
-                    @Override
-                    public void onResponse(Call<CityResult> call, Response<CityResult> response) {
+                                CityResult cityResult = response.body();
+                                if (cityResult != null && !isSelectedFromDropDownList) {
+                                    mCities.clear();
+                                    mAutoCompleteTextView.setAdapter(null);
+                                    for (Results res : cityResult.getRESULTS()) {
+                                        mCities.add(res.getName());
+                                    }
+                                    bindAdapterToCities();
+                                    mAutoCompleteTextView.setAdapter(mAdapter);
+                                    mAutoCompleteTextView.showDropDown();
+                                }
 
-                        CityResult cityResult = response.body();
-                        if (cityResult != null) {
-                            mCities.clear();
-                            mAutoCompleteTextView.setAdapter(null);
-                            for (Results res : cityResult.getRESULTS()) {
-                                mCities.add(res.getName());
                             }
-                            bindAdapterToCats();
-                            mAutoCompleteTextView.setAdapter(mAdapter);
 
-                            //mAdapter.notifyDataSetChanged();
-                            mAutoCompleteTextView.showDropDown();
-                        }
+                            @Override
+                            public void onFailure(Call<CityResult> call, Throwable t) {
 
+                            }
+                        });
                     }
-
-                    @Override
-                    public void onFailure(Call<CityResult> call, Throwable t) {
-
-                    }
-                });
-
+                    isSelectedFromDropDownList=false;
             }
         });
 
 
     }
 
-    private void bindAdapterToCats() {
+    private void bindAdapterToCities() {
         mAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, mCities);
     }

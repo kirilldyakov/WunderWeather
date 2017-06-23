@@ -2,4 +2,7 @@
     <string name="app_name">WunderWeather</string>
     <string name="otherCity">Другой город</string>
     <string name="thisCity">Этот город</string>
+    <string name="labelLat">Широта:</string>
+    <string name="labelLon">Долгота:</string>
+    <string name="labelCity">Населенный пункт:</string>
 </resources>

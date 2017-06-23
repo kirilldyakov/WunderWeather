@@ -7,11 +7,10 @@
     tools:context="ru.strongit.wunderweather.MainActivity"
     android:paddingLeft="8dp"
     android:paddingRight="8dp">
-    <EditText
-        android:inputType="text"
-        android:id="@+id/edCityName"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Введите английское название города"/>
     <AutoCompleteTextView
         android:id="@+id/autoCompleteTextView"
         android:layout_width="match_parent"
@@ -21,6 +20,6 @@
         android:ellipsize="end"
         android:imeOptions="actionSearch"
         android:textColor="@android:color/holo_blue_dark"
-
         />
+
 </LinearLayout>

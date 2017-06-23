@@ -13,10 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,6 +31,7 @@ import ru.strongit.wunderweather.modelCityResult.CityResult;
 import ru.strongit.wunderweather.modelCityResult.Results;
 import ru.strongit.wunderweather.modelGeoCode.GeoCode;
 import ru.strongit.wunderweather.modelGeoCode.GoogleMapsApi;
+import ru.strongit.wunderweather.modelGeoCode.Result;
 import ru.strongit.wunderweather.modelWeather.Weather;
 import ru.strongit.wunderweather.modelWeather.WunderGroundApi;
 
@@ -38,13 +42,26 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnThisCity;
     private Button mBtnOtherCity;
 
+    private TextView tvLat;
+    private TextView tvLon;
+    private TextView tvCity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        tvLat = (TextView) findViewById(R.id.tvLat);
+        tvLon = (TextView) findViewById(R.id.tvLon);
+        tvCity = (TextView) findViewById(R.id.tvCity);
+
+        tvLat.setText("");
+        tvLon.setText("");
+        tvCity.setText("");
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         mBtnThisCity = (Button) findViewById(R.id.btnThisCity);
+        mBtnThisCity.setEnabled(false);
         mBtnThisCity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
-    public void onBackPressed() {
-        if (ActivityCompat.checkSelfPermission(this,
+    protected void onStart() {
+        super.onStart();
+            if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -88,7 +105,25 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(Location location) {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
-                            //retrofitGetData(location.getLatitude()+","+location.getLongitude());
+
+                            tvLat.setText(location.convert(location.getLatitude(), location.FORMAT_SECONDS));
+                            tvLon.setText(location.convert(location.getLongitude(), location.FORMAT_SECONDS));
+                            String latlon = String.valueOf(location.getLatitude()).replace(',','.')+","+
+                                    String.valueOf(location.getLongitude()).replace(',','.');
+                            RetrofitHelper.getGoogleMapsRTFT().getGeoCode(latlon, "RU", GoogleMapsApi.GOOGLE_MAPS_KEY).enqueue(new Callback<GeoCode>() {
+                                @Override
+                                public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
+                                    GeoCode geoCode = response.body();
+                                    List<Result> results = geoCode.getResults();
+                                    tvCity.setText(results.get(3).getFormattedAddress());
+                                    mBtnThisCity.setEnabled(true);
+                                }
+
+                                @Override
+                                public void onFailure(Call<GeoCode> call, Throwable t) {
+
+                                }
+                            });
 
                             getForcast(location.getLatitude(), location.getLongitude());
                         }
