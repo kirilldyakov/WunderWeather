@@ -1,17 +1,22 @@
 package ru.strongit.wunderweather;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 
-import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,6 +60,10 @@ public class WeatherActivity extends AppCompatActivity {
     private WeatherForcast10 mWeatherForcast10;
 
     private RecyclerView mRecViewWeek;
+    private LinearLayoutManager mLayoutManager;
+
+    private int DayWidth;
+    private int height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +167,30 @@ public class WeatherActivity extends AppCompatActivity {
         mTvPreasureMb = (TextView) findViewById(R.id.tvPreasure);
 
         mRecViewWeek = (RecyclerView) findViewById(R.id.rec_week_forcast);
+        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        mRecViewWeek.setLayoutManager(mLayoutManager);
+        mRecViewWeek.setHasFixedSize(true);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        float padLR = convertDpToPixel(8*2, this);
+        float padInner = convertDpToPixel(6*2, this);
+
+        DayWidth = (int)(((size.x-padInner-padLR)/7));
+        height = size.y;
     }
+
+
+    public static float convertDpToPixel(float dp, Context context){
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return px;
+    }
+
 
     private void requestForcast() {
         RetrofitHelper.getWunderGroud10RTFT().getForcast(mLatitude, mLongitude).enqueue(new Callback<WeatherForcast10>() {
@@ -198,13 +230,13 @@ public class WeatherActivity extends AppCompatActivity {
 
     private void renderWeekForcast() {
         List<Forecastday> data = new ArrayList<>();
+        int i =0;
         for(Forecastday fd: mWeatherForcast10.getForecast().getSimpleforecast().getForecastday()){
-
+            if (i<7) data.add(fd);
+            i++;
         }
-
-
-        RecyclerView.Adapter adapter = new ForcastdayAdapter(this, R.layout.day_forcast, data);
-        mRecViewWeek.setAdapter(() adapter);
+        mRecViewWeek.setAdapter(new ForcastdayAdapter(this, R.layout.day_forcast, data, DayWidth));
+        mRecViewWeek.getAdapter().notifyDataSetChanged();
     }
 
     private void bindAdapterToCities() {

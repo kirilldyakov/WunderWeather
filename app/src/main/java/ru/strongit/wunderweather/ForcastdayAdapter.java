@@ -1,17 +1,24 @@
 package ru.strongit.wunderweather;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.media.Image;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.bumptech.glide.Glide;
+
+import java.text.SimpleDateFormat;
 import java.util.List;
 
+import ru.strongit.wunderweather.modelWeather10.Date;
 import ru.strongit.wunderweather.modelWeather10.Forecastday;
 
 
@@ -19,117 +26,128 @@ import ru.strongit.wunderweather.modelWeather10.Forecastday;
  * Created by user on 22.06.17.
  */
 
-public class ForcastdayAdapter extends ArrayAdapter<Forecastday> {
+public class ForcastdayAdapter extends RecyclerView.Adapter<ForcastdayAdapter.ViewHolder> {
     private final Context mContext;
     private final List<Forecastday> mForecastdayList;
-//    private final List<Department> mDepartments_All;
-//    private final List<Department> mDepartments_Suggestion;
-    private final int mLayoutResourceId;
     private int viewResourceId;
+    private int DayWidth;
 
-    public ForcastdayAdapter(Context context, int resource, List<Forecastday> forecastdaysList) {
-        super(context, resource, forecastdaysList);
+
+    //+
+    public ForcastdayAdapter(Context context, int resource, List<Forecastday> forecastdaysList, int width) {
         this.mContext = context;
-        this.mLayoutResourceId = resource;
-        this.mForecastdayList = new ArrayList<>(forecastdaysList);
+        this.mForecastdayList = forecastdaysList;
         this.viewResourceId = resource;
-        //this.mDepartments_All = new ArrayList<>(cityResults);
-        //this.mDepartments_Suggestion = new ArrayList<>();
+        this.DayWidth = width;
     }
 
-    public int getCount() {
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater
+                .from(parent
+                        .getContext())
+                .inflate(R.layout.day_forcast, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(ForcastdayAdapter.ViewHolder holder, int position) {
+
+
+        Forecastday forecastday = mForecastdayList.get(position);
+
+        LinearLayout llDay = (LinearLayout)holder.itemView.findViewById(R.id.llDayForecast);
+        ViewGroup.LayoutParams params = llDay.getLayoutParams();
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        params.width = DayWidth;
+        llDay.setLayoutParams(params);
+
+
+         String sDate = forecastday.getDate().getDay()+"."+forecastday.getDate().getMonth();
+        TextView tvDate = (TextView) holder.itemView.findViewById(R.id.tvDate);
+        tvDate.setText(sDate);
+
+        TextView tvHigh = (TextView) holder.itemView.findViewById(R.id.tvHigh);
+        tvHigh.setText(forecastday.getHigh().getCelsius());
+
+        TextView tvLow = (TextView) holder.itemView.findViewById(R.id.tvLow);
+        tvLow.setText(forecastday.getLow().getCelsius());
+
+        ImageView dayLogo = (ImageView) holder.itemView.findViewById(R.id.imgDayLogo);
+        String iconUrl = forecastday.getIconUrl();
+
+        Glide.with(mContext)
+                .asGif()
+                .load(iconUrl)
+                .into(dayLogo);
+
+    }
+
+
+
+    //+
+    @Override
+    public int getItemCount() {
+        if (mForecastdayList == null)
+            return 0;
         return mForecastdayList.size();
     }
 
-    public Forecastday getItem(int position) {
-        return mForecastdayList.get(position);
-    }
 
-    public long getItemId(int position) {
-        return position;
-    }
 
-    @NonNull
-    @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-//        return super.getView(position, convertView, parent);
+//Вложенный класс ViewHolder. Используется для наполнения списка данными
+class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView tvHigh;
+        TextView tvLow;
+        LinearLayout llDayForecast;
 
-        View v = convertView;
-        if (v == null) {
-            LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(viewResourceId, null);
+        ViewHolder(View itemView) {
+            super(itemView);
+            //itemView.setOnClickListener(this);
+            llDayForecast = (LinearLayout)itemView.findViewById(viewResourceId);
         }
-        Forecastday forecastday = mForecastdayList.get(position);
-        if (forecastday != null) {
 
-            TextView tvLowTemp = (TextView) v.findViewById(R.id.tvLow);
-                tvLowTemp.setText(String.valueOf(forecastday.getLow().getCelsius()));
-            TextView tvHighTemp = (TextView) v.findViewById(R.id.tvHigh);
-            tvHighTemp.setText(String.valueOf(forecastday.getHigh().getCelsius()));
-
+        @Override
+        public void onClick(View v) {
+            Log.d("LOG_TAG", "onClick: "+v.toString());
+            notifyDataSetChanged();
         }
-        return v;
-    }
 
+    }
+//    public int getCount() {
+//        return mForecastdayList.size();
+//    }
+//
+//    public Forecastday getItem(int position) {
+//        return mForecastdayList.get(position);
+//    }
+//
+//
+//    public long getItemId(int position) {
+//        return position;
+//    }
+//
+//    @NonNull
 //    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        try {
-//            if (convertView == null) {
-//                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-//                convertView = inflater.inflate(mLayoutResourceId, parent, false);
-//            }
-//            Department department = getItem(position);
-//            TextView name = (TextView) convertView.findViewById(R.id.textView);
-//            name.setText(department.name);
-//        } catch (Exception e) {
-//            e.printStackTrace();
+//    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+////        return super.getView(position, convertView, parent);
+//
+//        View v = convertView;
+//        if (v == null) {
+//            LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            v = vi.inflate(viewResourceId, null);
 //        }
-//        return convertView;
+//        Forecastday forecastday = mForecastdayList.get(position);
+//        if (forecastday != null) {
+//
+//            TextView tvLowTemp = (TextView) v.findViewById(R.id.tvLow);
+//                tvLowTemp.setText(String.valueOf(forecastday.getLow().getCelsius()));
+//            TextView tvHighTemp = (TextView) v.findViewById(R.id.tvHigh);
+//            tvHighTemp.setText(String.valueOf(forecastday.getHigh().getCelsius()));
+//
+//        }
+//        return v;
 //    }
-//
-//    @Override
-//    public Filter getFilter() {
-//        return new Filter() {
-//            @Override
-//            public String convertResultToString(Object resultValue) {
-//                return ((Department) resultValue).name;
-//            }
-//
-//            @Override
-//            protected FilterResults performFiltering(CharSequence constraint) {
-//                if (constraint != null) {
-//                    mDepartments_Suggestion.clear();
-//                    for (Department department : mDepartments_All) {
-//                        if (department.name.toLowerCase().startsWith(constraint.toString().toLowerCase())) {
-//                            mDepartments_Suggestion.add(department);
-//                        }
-//                    }
-//                    FilterResults filterResults = new FilterResults();
-//                    filterResults.values = mDepartments_Suggestion;
-//                    filterResults.count = mDepartments_Suggestion.size();
-//                    return filterResults;
-//                } else {
-//                    return new FilterResults();
-//                }
-//            }
-//
-//            @Override
-//            protected void publishResults(CharSequence constraint, FilterResults results) {
-//                mDepartments.clear();
-//                if (results != null && results.count > 0) {
-//                    // avoids unchecked cast warning when using mDepartments.addAll((ArrayList<Department>) results.values);
-//                    List<?> result = (List<?>) results.values;
-//                    for (Object object : result) {
-//                        if (object instanceof Department) {
-//                            mDepartments.add((Department) object);
-//                        }
-//                    }
-//                } else if (constraint == null) {
-//                    // no filter, add entire original list back in
-//                    mDepartments.addAll(mDepartments_All);
-//                }
-//                notifyDataSetChanged();
-//            }
-//        };
-//    }
+
+
 }
