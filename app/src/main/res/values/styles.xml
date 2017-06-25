@@ -9,10 +9,21 @@
     </style>
 
     <style name="stlCityButtons">
+
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_margin">16dp</item>
+    </style>
+
+    <style name="btnStyle">
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_margin">16dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
     </style>
 
 </resources>

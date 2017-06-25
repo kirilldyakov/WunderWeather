@@ -1,5 +1,6 @@
 package ru.strongit.wunderweather;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -16,6 +17,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -47,15 +49,18 @@ public class WeatherActivity extends AppCompatActivity {
     private ImageView mImgCurWeatherLogo;
     private TextView mTvTempC;
     private TextView mTvPreasureMb;
+    private TextView mTvCity;
 
     boolean isSelectedFromDropDownList = false;
 
     public static final String EXTRA_LATITUDE = "EXTRA_LATITUDE";
     public static final String EXTRA_LONGITUDE = "EXTRA_LONGITUDE";
+    public static final String EXTRA_IS_RU_CITY = "EXTRA_IS_RU_CITY";
 
 
     private String mLatitude;
     private String mLongitude;
+    private boolean isRU;
 
     private WeatherForcast10 mWeatherForcast10;
 
@@ -64,6 +69,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private int DayWidth;
     private int height;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +82,11 @@ public class WeatherActivity extends AppCompatActivity {
         init_views();
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mLatitude = extras.getString(this.EXTRA_LATITUDE);
-            mLongitude = extras.getString(this.EXTRA_LONGITUDE);
+        mLatitude = extras.getString(this.EXTRA_LATITUDE);
+        mLongitude = extras.getString(this.EXTRA_LONGITUDE);
+        isRU = extras.getBoolean(this.EXTRA_IS_RU_CITY);
+
+        if (mLatitude!=null) {
             llSearchCityGroup.setVisibility(View.GONE);
             requestForcast();
         } else {
@@ -100,6 +109,7 @@ public class WeatherActivity extends AppCompatActivity {
                                 }
                             });
 
+                            hideSoftKeyboard(WeatherActivity.this);
                             requestForcast();
                         }
 
@@ -120,8 +130,10 @@ public class WeatherActivity extends AppCompatActivity {
                         @Override
                         public void afterTextChanged(Editable s) {
                             if (!isSelectedFromDropDownList) {
+
+                                String loc = isRU?"RU":"";
                                 RetrofitHelper.getAutocompleteRTFT()
-                                        .getPosibleCities("RU", s.toString())
+                                        .getPosibleCities(loc, s.toString())
                                         .enqueue(new Callback<CityResult>() {
                                             @Override
                                             public void onResponse(Call<CityResult> call,
@@ -166,6 +178,9 @@ public class WeatherActivity extends AppCompatActivity {
         mTvTempC = (TextView) findViewById(R.id.tvTempC);
         mTvPreasureMb = (TextView) findViewById(R.id.tvPreasure);
 
+        mTvCity = (TextView) findViewById(R.id.tvCity);
+
+
         mRecViewWeek = (RecyclerView) findViewById(R.id.rec_week_forcast);
         mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 
@@ -176,18 +191,18 @@ public class WeatherActivity extends AppCompatActivity {
         Point size = new Point();
         display.getSize(size);
 
-        float padLR = convertDpToPixel(8*2, this);
-        float padInner = convertDpToPixel(6*2, this);
+        float padLR = convertDpToPixel(8 * 2, this);
+        float padInner = convertDpToPixel(6 * 2, this);
 
-        DayWidth = (int)(((size.x-padInner-padLR)/7));
+        DayWidth = (int) (((size.x - padInner - padLR) / 7));
         height = size.y;
     }
 
 
-    public static float convertDpToPixel(float dp, Context context){
+    public static float convertDpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return px;
     }
 
@@ -211,7 +226,6 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
 
-
     private void renderCurrentWeather() {
         String iconUrl = mWeatherForcast10.getCurrentObservation().getIconUrl();
         Glide.with(this)
@@ -221,18 +235,28 @@ public class WeatherActivity extends AppCompatActivity {
 
         double tempC = mWeatherForcast10.getCurrentObservation().getTempC();
 
-        mTvTempC.setText(String.format("%.1f", tempC));
+        mTvCity.setText(mWeatherForcast10.getCurrentObservation().getObservationLocation().getFull());
 
-        String preasuseMb = mWeatherForcast10.getCurrentObservation().getPressureMb();
+        mTvTempC.setText(String.format("%.1f", tempC) + " C");
 
-        mTvPreasureMb.setText(preasuseMb);
+        String preasuse = mWeatherForcast10.getCurrentObservation().getPressureMb() + "МБ";
+        try {
+            double prsd = Integer.parseInt(mWeatherForcast10.getCurrentObservation().getPressureMb());
+            prsd = prsd / 1.3332;
+            int prsi = (int) prsd;
+            preasuse = String.valueOf(prsi) + "ммрт";
+        } catch (Exception e) {
+        }
+
+
+        mTvPreasureMb.setText(preasuse);
     }
 
     private void renderWeekForcast() {
         List<Forecastday> data = new ArrayList<>();
-        int i =0;
-        for(Forecastday fd: mWeatherForcast10.getForecast().getSimpleforecast().getForecastday()){
-            if (i<7) data.add(fd);
+        int i = 0;
+        for (Forecastday fd : mWeatherForcast10.getForecast().getSimpleforecast().getForecastday()) {
+            if (i < 7) data.add(fd);
             i++;
         }
         mRecViewWeek.setAdapter(new ForcastdayAdapter(this, R.layout.day_forcast, data, DayWidth));
@@ -243,4 +267,11 @@ public class WeatherActivity extends AppCompatActivity {
         mAdapter = new CityResultsAdapter(this, R.layout.city_results, mCities);
     }
 
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(
+                activity.getCurrentFocus().getWindowToken(), 0);
+    }
 }

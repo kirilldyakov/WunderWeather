@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLon;
     private TextView tvCity;
 
+    private CheckBox chRU;
+
     private String mLatitude;
     private String mLongitude;
 
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         tvLon.setText("");
         tvCity.setText("");
 
+        chRU = (CheckBox) findViewById(R.id.chRU);
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mBtnThisCity = (Button) findViewById(R.id.btnThisCity);
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(getApplicationContext(), WeatherActivity.class);
                 if(!mLatitude.isEmpty()) i.putExtra(WeatherActivity.EXTRA_LATITUDE, mLatitude);
                 if(!mLongitude.isEmpty()) i.putExtra(WeatherActivity.EXTRA_LONGITUDE, mLongitude);
+
                 startActivity(i);
             }
         });
@@ -72,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getApplicationContext(), WeatherActivity.class);
-                //i.putExtra()
+                i.putExtra(WeatherActivity.EXTRA_IS_RU_CITY, chRU.isChecked());
                 startActivity(i);
             }
         });

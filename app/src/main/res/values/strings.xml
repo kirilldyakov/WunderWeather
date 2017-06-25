@@ -5,5 +5,5 @@
     <string name="labelLat">Широта:</string>
     <string name="labelLon">Долгота:</string>
     <string name="labelCity">Населенный пункт:</string>
-    <string name="enterCityName">Введите английское название города</string>
+    <string name="enterCityName">Английское название города</string>
 </resources>
