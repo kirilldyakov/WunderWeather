@@ -144,7 +144,8 @@ public class WeatherActivity extends AppCompatActivity {
                                                         mCities.clear();
                                                         mAutoCompleteTextView.setAdapter(null);
                                                         for (Results res : cityResult.getRESULTS()) {
-                                                            mCities.add(res);
+                                                            if(res.getType().equals("city"))
+                                                                mCities.add(res);
                                                         }
                                                         bindAdapterToCities();
                                                         mAutoCompleteTextView.setAdapter(mAdapter);
@@ -241,7 +242,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         String preasuse = mWeatherForcast10.getCurrentObservation().getPressureMb() + "МБ";
         try {
-            double prsd = Integer.parseInt(mWeatherForcast10.getCurrentObservation().getPressureMb());
+            double prsd = Double.parseDouble(mWeatherForcast10.getCurrentObservation().getPressureMb());
             prsd = prsd / 1.3332;
             int prsi = (int) prsd;
             preasuse = String.valueOf(prsi) + "ммрт";
